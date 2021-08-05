@@ -9,6 +9,8 @@ const request = require('request');
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 const PaymentForm = ({ checkoutToken, nextStep, backStep, shippingData, onCaptureCheckout }) => {
+  alert('Make sure you repeat "4242" as your payment card info. A real card WILL be charged!')
+
   const handleSubmit = async (event, elements, stripe) => {
     event.preventDefault();
 
@@ -34,25 +36,24 @@ const PaymentForm = ({ checkoutToken, nextStep, backStep, shippingData, onCaptur
         },
       };
 
+        var url = "https://apis.ticket-generator.com/client/v1/ticket/send/?eventId=60a18db76470e44f306034eb";
 
-      const headers = {
-          'accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-      };
-      const dataString = `email=${orderData.customer.email}&phoneNumber=%2B${'12088804775'}&subject=${'DanceSport-Web Tickets'}&body=${'Your Tickets Are Here!'}&'fromName=${'parkerdlynn@gmail.com'}&fromEmail=${'parkerdlynn@gmail.com'}&replyTo=${'parkerdlynn@gmail.com'}&header_1=Name&value_1=${orderData.customer.firstname + " " + orderData.customer.lastname}&header_2=Table%3A&value_2=${'8'}&header_3=Seat&value_3=${'07'}&header_4=Session&value_4=${'Saturday Evening'}&header_5=Price&value_5=%24${'$90'}`;
-      const options = {
-          url: 'https://apis.ticket-generator.com/client/v1/ticket/send/?eventId=609984f3c4297d62dd8a3b4e',
-          method: 'POST',
-          headers: headers,
-          body: dataString
-      };
-      function callback(error, response, body) {
-          if (!error && response.statusCode === 200) {
-              console.log(body);
-          }
-      }
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+
+        xhr.setRequestHeader("accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+              console.log(xhr.status);
+              console.log(xhr.responseText);
+          }};
+
+        var data = `email=${orderData.customer.email}&subject=Your%20Tickets%20Are%20Here!&body=Here%20Are%20You%20Tickets!%20Make%20sure%20to%20show%20this%20to%20the%20ticketing%20agent%20before%20entry%20to%20the%20event&fromName=WebTix&replyTo=webtix%40gmail.com&value_1=${orderData.customer.firstname + " " + orderData.customer.lastname}&header_2=Seat%3A&value_2=General%20Admission&header_5=Price%3A&value_5=%241.00`;
+
+        xhr.send(data);
         onCaptureCheckout(checkoutToken.id, orderData);
-        request(options, callback);
         nextStep();
     }
   };
